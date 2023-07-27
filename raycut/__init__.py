@@ -69,7 +69,10 @@ def init(aws_access_key_id, aws_secret_access_key):
     subprocess.check_call('mkdir -p ~/.aws && pip install boto3 ray && apt update && apt install rsync -y', shell=True)
 
     p = pathlib.Path('~/.aws/').expanduser()
-    (p / 'credentials').rename( p / f'credentials_backup_{time.time()}')
+    try:
+        (p / 'credentials').rename( p / f'credentials_backup_{time.time()}')
+    except FileNotFoundError:
+        pass
     with open(p / 'credentials', 'w') as f:
         f.write(f'''
         # added by raycut
