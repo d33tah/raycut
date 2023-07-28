@@ -19,15 +19,6 @@ provider:
     type: aws
     region: us-west-2
     availability_zone: us-west-2a,us-west-2b
-    security_group:
-        GroupName: ray_client_security_group
-        IpPermissions:
-              - FromPort: 10001
-                ToPort: 10001
-                IpProtocol: TCP
-                IpRanges:
-                    # This will enable inbound access from ALL IPv4 addresses.
-                    - CidrIp: 0.0.0.0/0
 auth:
     ssh_user: ubuntu
 available_node_types:
@@ -85,9 +76,8 @@ def init(aws_access_key_id, aws_secret_access_key):
         f.write(yaml)
 
     subprocess.check_call('ray up example.yaml --yes', shell=True)
-
-    ip = subprocess.check_output('ray get-head-ip example.yaml', shell=True).decode().split()[-1]
-    ray.init(address=f'ray://{ip}:10001')
+    subprocess.check_call('ray attach -p 10001 example.yaml', shell=True)
+    ray.init(address=f'ray://localhost:10001')
 
     class cls:
         def run(self, f):
