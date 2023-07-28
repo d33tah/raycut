@@ -56,12 +56,16 @@ worker_start_ray_commands:
     - ray start --address=$RAY_HEAD_IP:6379 --object-manager-port=8076
 '''
 
+
 def init(aws_access_key_id, aws_secret_access_key):
-    subprocess.check_call('mkdir -p ~/.aws && pip install boto3 ray && apt update && apt install rsync -y', shell=True)
+    subprocess.check_call(
+        'mkdir -p ~/.aws', shell=True)
+    subprocess.check_call('pip install boto3 ray', shell=True)
+    subprocess.check_call('apt update && apt install rsync -y', shell=True)
 
     p = pathlib.Path('~/.aws/').expanduser()
     try:
-        (p / 'credentials').rename( p / f'credentials_backup_{time.time()}')
+        (p / 'credentials').rename(p / f'credentials_backup_{time.time()}')
     except FileNotFoundError:
         pass
     with open(p / 'credentials', 'w') as f:
@@ -76,14 +80,16 @@ def init(aws_access_key_id, aws_secret_access_key):
         f.write(yaml)
 
     subprocess.check_call('ray up example.yaml --yes', shell=True)
-    subprocess.check_call('ray attach -p 10001 example.yaml', shell=True)
-    ray.init(address=f'ray://localhost:10001')
+    p = subprocess.Popen('ray attach -p 10001 example.yaml', shell=True)
+    ray.init(address='ray://localhost:10001')
 
     class cls:
         def run(self, f):
             return ray.get([f.remote()])
 
         def teardown(self):
+            p.kill()
+            p.wait()
             subprocess.check_call('ray down example.yaml --yes', shell=True)
 
     return cls()
