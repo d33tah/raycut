@@ -80,7 +80,7 @@ def init(aws_access_key_id, aws_secret_access_key):
         f.write(yaml)
 
     subprocess.check_call('ray up example.yaml --yes', shell=True)
-    p = subprocess.Popen('ray attach -p 10001 example.yaml', shell=True)
+    p = subprocess.Popen('nohup ray attach -p 10001 example.yaml', shell=True)
     ray.init(address='ray://localhost:10001')
 
     class cls:
