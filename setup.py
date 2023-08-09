@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name='raycut',
-    version='0.0.5',
+    version='0.0.6',
     description=__doc__,
     long_description=long_description,
     url='http://github.com/d33tah/raycut',

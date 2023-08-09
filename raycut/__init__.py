@@ -9,7 +9,7 @@ cluster_name: default
 max_workers: 2
 upscaling_speed: 1.0
 docker:
-    image: "rayproject/ray-ml:latest-cpu"
+    image: "rayproject/ray:nightly-py38-cpu"
     container_name: "ray_container"
     pull_before_run: True
     run_options:
@@ -57,7 +57,7 @@ worker_start_ray_commands:
 '''
 
 
-def init(aws_access_key_id, aws_secret_access_key):
+def setup_aws(aws_access_key_id, aws_secret_access_key):
     subprocess.check_call(
         'mkdir -p ~/.aws', shell=True)
     subprocess.check_call('pip install boto3 ray', shell=True)
@@ -76,6 +76,10 @@ def init(aws_access_key_id, aws_secret_access_key):
         aws_secret_access_key = {aws_secret_access_key}
         ''')
 
+
+def init(aws_access_key_id=None, aws_secret_access_key=None):
+    if aws_access_key_id is not None:
+        setup_aws(aws_access_key_id, aws_secret_access_key)
     with open('example.yaml', 'w') as f:
         f.write(yaml)
 
